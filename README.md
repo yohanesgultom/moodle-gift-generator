@@ -6,6 +6,8 @@ Moodle (https://moodle.org/) question format (GIFT) generator. Currently only `m
 
 Simply put `index.php` to PHP webserver and access from browser
 
+![alt text](https://github.com/yohanesgultom/moodle-gift-generator/blob/master/screenshot.png "Screenshot")
+
 ### Input Example
 ```
 1.Who is Indonesia's 1st president?
