@@ -1,5 +1,7 @@
 <?php
 
+$filename = "questions.gift.txt";
+
 function parseMultipleChoice($lines)
 {
     $question = [];
@@ -81,8 +83,9 @@ function getQuestionOrOptionValue($str)
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $filename = !empty($_POST["filename"]) ? trim($_POST["filename"]) : $filename;
     header('Content-type: text/plain');
-    header('Content-Disposition: attachment; filename="questions.gift.txt"');
+    header('Content-Disposition: attachment; filename="'.$filename.'"');
 
     $source = $_POST["source"];
     $questionsRaw = explode("\n\r\n", trim($source));
@@ -138,9 +141,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <div class="ui container form">
         <form action="index.php" method="POST">
+            <div class="two fields">
             <div class="field">
-                <button class="blue ui button" type="submit">Generate GIFT</button>
+                <input type="text" name="filename" placeholder="File name" value="<?php echo $filename ?>">
             </div>
+            <div class="field">
+                <button class="blue ui button" type="submit"><i class="icon download"></i> Generate GIFT</button>
+            </div>
+        </div>
             <div class="field source">
                 <textarea id="source" name="source" placeholder="Put your question here"></textarea>
             </div>
