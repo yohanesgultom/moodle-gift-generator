@@ -11,8 +11,17 @@ function parseMultipleChoice($lines)
             $question["question"] = getQuestionOrOptionValue($line);
             $question["type"] = "multiple-choice";
         } else {
-            $options[$j-1]["text"] = getQuestionOrOptionValue($line);
-            $options[$j-1]["answer"] = isOptionAnswer($line);
+            if (isOption($line)) {
+                $options[$j-1]["text"] = getQuestionOrOptionValue($line);
+                $options[$j-1]["answer"] = isOptionAnswer($line);
+            } else {
+                // handle multiple line question or option
+                if (empty($options)) {
+                    $question["question"] .= getQuestionOrOptionValue($line);
+                } else {
+                    $options[$j-2] .=  getQuestionOrOptionValue($line);
+                }
+            }
         }
     }
     $question["options"] = $options;
@@ -77,9 +86,14 @@ function getQuestionOrOptionValue($str)
 {
     $firstDot = strpos($str, ".");
     if ($firstDot !== false) {
-        return trim(substr($str, $firstDot+1));
+        $value = trim(substr($str, $firstDot+1));
+        // remove colon from question
+        if (is_numeric(substr($str, 0, $firstDot))) {
+            $value = str_replace(":", "", $value);
+        }
+        return $value;
     }
-    return false;
+    return trim(str_replace(":", "", $str));
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -133,27 +147,41 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     </style>
-    <script src="https://code.jquery.com/jquery-1.12.3.min.js" integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/semantic.min.js"></script>
 </head>
 <body>
     <h1 class="ui center aligned header">Moodle GIFT Generator</h1>
 
     <div class="ui container form">
-        <form action="index.php" method="POST">
+        <form id="main-form" action="index.php" method="POST">
             <div class="two fields">
             <div class="field">
-                <input type="text" name="filename" placeholder="File name" value="<?php echo $filename ?>">
+                <input type="text" name="filename" placeholder="File name" value="<?php echo $filename ?>" required>
             </div>
             <div class="field">
                 <button class="blue ui button" type="submit"><i class="icon download"></i> Generate GIFT</button>
             </div>
         </div>
             <div class="field source">
-                <textarea id="source" name="source" placeholder="Put your question here"></textarea>
+                <textarea id="source" name="source" placeholder="Put your question here" required></textarea>
             </div>
         </form>
     </div>
+
+    <script src="https://code.jquery.com/jquery-1.12.3.min.js" integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/semantic.min.js"></script>
+    <script>
+        $('#main-form').submit(function() {
+            if (!$('input[name=filename]', this).val()) {
+                alert('Please provide filename');
+                return false;
+            } else if (!$('textarea[name=source]', this).val()) {
+                alert('Please provide source');
+                return false;
+            }
+            return true;
+        });
+    </script>
+
 </body>
 </html>
 
