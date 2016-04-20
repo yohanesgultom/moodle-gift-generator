@@ -6,12 +6,12 @@ define("ALLOWED_TAGS", "<strong><b><i><em><u>");
 
 $filename = "questions.gift.txt";
 $source = "";
-$errors = array();
+$errors = [];
 
 function parseMultipleChoice($lines)
 {
-    $question = array();
-    $options = array();
+    $question = [];
+    $options = [];
     foreach ($lines as $j => $line) {
         if ($j == 0) {
             $str = getQuestionOrOptionValue($line);
@@ -38,8 +38,8 @@ function parseMultipleChoice($lines)
 
 function parseMatching($lines)
 {
-    $question = array();
-    $subquestions = array();
+    $question = [];
+    $subquestions = [];
     foreach ($lines as $j => $line) {
         if ($j == 0) {
             $str = getQuestionOrOptionValue($line);
@@ -91,7 +91,7 @@ function getQuestionOrOptionValue($str)
 
 function validateQuestionMultipleChoice($question)
 {
-    $errors = array();
+    $errors = [];
     $question_text = trim($question["question"]);
     if (empty($question_text)) {
         array_push($errors, "Empty question");
@@ -118,7 +118,7 @@ function validateQuestionMultipleChoice($question)
 
 function validateQuestionMatching($question)
 {
-    $errors = array();
+    $errors = [];
     $question_text = trim($question["question"]);
     if (empty($question_text)) {
         array_push($errors, "Empty question");
@@ -142,7 +142,7 @@ function validateQuestionMatching($question)
 
 function validateQuestions($questions)
 {
-    $errors = array();
+    $errors = [];
     foreach ($questions as $index => $question) {
         if ($question["type"] == "multiple-choice") {
             $errors_temp = validateQuestionMultipleChoice($question);
@@ -162,7 +162,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $questionsRaw = explode("\n\r\n", trim($source));
     // var_dump($questionsRaw);
 
-    $questions = array();
+    $questions = [];
     foreach ($questionsRaw as $i => $q) {
         if (!empty($q)) {
             $lines = explode("\n", trim($q));
