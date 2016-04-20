@@ -1,11 +1,15 @@
 <?php
 
+define('ANSWER_MARK', '*');
+
 $filename = "questions.gift.txt";
+$source = "";
+$errors = array();
 
 function parseMultipleChoice($lines)
 {
-    $question = [];
-    $options = [];
+    $question = array();
+    $options = array();
     foreach ($lines as $j => $line) {
         if ($j == 0) {
             $question["question"] = getQuestionOrOptionValue($line);
@@ -13,13 +17,13 @@ function parseMultipleChoice($lines)
         } else {
             if (isOption($line)) {
                 $options[$j-1]["text"] = getQuestionOrOptionValue($line);
-                $options[$j-1]["answer"] = isOptionAnswer($line);
+                $options[$j-1]["answer"] = isAnswer($line);
             } else {
                 // handle multiple line question or option
                 if (empty($options)) {
                     $question["question"] .= getQuestionOrOptionValue($line);
                 } else {
-                    $options[$j-2] .=  getQuestionOrOptionValue($line);
+                    $options[$j-2] = (string)$options[$j-2].getQuestionOrOptionValue($line);
                 }
             }
         }
@@ -30,14 +34,14 @@ function parseMultipleChoice($lines)
 
 function parseMatching($lines)
 {
-    $question = [];
-    $subquestions = [];
+    $question = array();
+    $subquestions = array();
     foreach ($lines as $j => $line) {
         if ($j == 0) {
             $question["question"] = getQuestionOrOptionValue($line);
             $question["type"] = "matching";
         } else {
-            $tmp = explode("*", $line);
+            $tmp = explode(ANSWER_MARK, $line);
             $subquestions[$j-1]["text"] = getQuestionOrOptionValue($tmp[0]);
             $subquestions[$j-1]["answer"] = $tmp[1];
         }
@@ -46,8 +50,11 @@ function parseMatching($lines)
     return $question;
 }
 
-function renderGift($questions)
+function renderGift($questions, $filename)
 {
+    header('Content-type: text/plain');
+    header('Content-Disposition: attachment; filename="'.$filename.'"');
+
     foreach ($questions as $q) {
         echo "::".$q["question"]."::";
         echo "[html]<p>".$q["question"]."<br></p>";
@@ -76,10 +83,14 @@ function isOption($str)
     return false;
 }
 
+function isAnswer($str)
+{
+    return $str[0] == ANSWER_MARK;
+}
 
 function isOptionAnswer($str)
 {
-    return isOption($str) && $str[0] == "*";
+    return isOption($str) && isAnswer($str);
 }
 
 function getQuestionOrOptionValue($str)
@@ -96,16 +107,52 @@ function getQuestionOrOptionValue($str)
     return trim(str_replace(":", "", $str));
 }
 
+function validateQuestion($question)
+{
+    $errors = array();
+    $question_text = trim($question["question"]);
+    if (empty($question_text)) {
+        array_push($errors, "Empty question");
+    }
+    if (count($question["options"]) <= 0) {
+        array_push($errors, "No options provided");
+    } else {
+        $answered = false;
+        foreach ($question["options"] as $index => $option) {
+            $option_text = trim($option["text"]);
+            if (empty($option_text)) {
+                array_push($errors, ($index + 1)." : empty option");
+            }
+            if ($option["answer"] == true) {
+                $answered = true;
+            }
+        }
+        if ($answered == false) {
+            array_push($errors, "No answer given");
+        }
+    }
+    return $errors;
+}
+
+function validateQuestions($questions)
+{
+    $errors = array();
+    foreach ($questions as $index => $question) {
+        $errors_temp = validateQuestion($question);
+        if (count($errors_temp) > 0) {
+            $errors[$index] = $errors_temp;
+        }
+    }
+    return $errors;
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $filename = !empty($_POST["filename"]) ? trim($_POST["filename"]) : $filename;
-    header('Content-type: text/plain');
-    header('Content-Disposition: attachment; filename="'.$filename.'"');
-
     $source = $_POST["source"];
     $questionsRaw = explode("\n\r\n", trim($source));
     // var_dump($questionsRaw);
 
-    $questions = [];
+    $questions = array();
     foreach ($questionsRaw as $i => $q) {
         if (!empty($q)) {
             $lines = explode("\n", trim($q));
@@ -116,10 +163,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
         }
     }
-    // var_dump($questions);
 
-    renderGift($questions);
-} else {
+    $errors = validateQuestions($questions);
+    // var_dump($questions);
+    if (count($errors) == 0) {
+        renderGift($questions, $filename);
+    }
+}
+
+if ($_SERVER["REQUEST_METHOD"] !== "POST" || count($errors) > 0) {
 ?>
 
 <!DOCTYPE html>
@@ -146,12 +198,41 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         height: 100%;
     }
 
+    .ui.container.form {
+        margin-top: 1em;
+    }
+
+    .message .header {
+        margin-bottom: 1em;
+    }
     </style>
 </head>
 <body>
     <h1 class="ui center aligned header">Moodle GIFT Generator</h1>
 
+    <?php if (count($errors) > 0) { ?>
+    <div class="ui container">
+        <div class="ui warning message">
+            <i class="close icon"></i>
+            <div class="header">
+                Error(s) found!
+            </div>
+            <?php
+            foreach ($errors as $index => $error_list) {
+                echo "Question ".($index + 1)."<br>";
+                echo "<ul>";
+                foreach ($error_list as $error) {
+                    echo "<li>".$error."</li>";
+                }
+                echo "</ul>";
+            }
+            ?>
+        </div>
+    </div>
+    <?php } ?>
+
     <div class="ui container form">
+
         <form id="main-form" action="index.php" method="POST">
             <div class="two fields">
             <div class="field">
@@ -162,7 +243,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
         </div>
             <div class="field source">
-                <textarea id="source" name="source" placeholder="Put your question here" required></textarea>
+                <textarea id="source" name="source" placeholder="Put your question here" required><?php echo $source; ?></textarea>
             </div>
         </form>
     </div>
