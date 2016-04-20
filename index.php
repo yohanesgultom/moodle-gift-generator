@@ -1,6 +1,8 @@
 <?php
 
-define('ANSWER_MARK', '*');
+define("ANSWER_MARK", "*");
+define("MAX_LENGTH", 50);
+define("ALLOWED_TAGS", "<strong><b><i><em><u>");
 
 $filename = "questions.gift.txt";
 $source = "";
@@ -12,11 +14,13 @@ function parseMultipleChoice($lines)
     $options = array();
     foreach ($lines as $j => $line) {
         if ($j == 0) {
-            $question["question"] = getQuestionOrOptionValue($line);
+            $str = getQuestionOrOptionValue($line);
+            $question["name"] = convertToSafeName($str);
+            $question["question"] = convertToSafeHTML($str);
             $question["type"] = "multiple-choice";
         } else {
             if (isOption($line)) {
-                $options[$j-1]["text"] = getQuestionOrOptionValue($line);
+                $options[$j-1]["text"] = convertToSafeHTML(getQuestionOrOptionValue($line));
                 $options[$j-1]["answer"] = isAnswer($line);
             } else {
                 // handle multiple line question or option
@@ -48,30 +52,6 @@ function parseMatching($lines)
     }
     $question["subquestions"] = $subquestions;
     return $question;
-}
-
-function renderGift($questions, $filename)
-{
-    header('Content-type: text/plain');
-    header('Content-Disposition: attachment; filename="'.$filename.'"');
-
-    foreach ($questions as $q) {
-        echo "::".$q["question"]."::";
-        echo "[html]<p>".$q["question"]."<br></p>";
-        echo "{\n";
-        if ($q["type"] == "multiple-choice") {
-            foreach ($q["options"] as $o) {
-                echo "\t";
-                echo ($o["answer"]) ? "=" : "~";
-                echo "<p>".$o["text"]."</p>\n";
-            }
-        } elseif ($q["type"] == "matching") {
-            foreach ($q["subquestions"] as $o) {
-                echo "\t=<p>".$o["text"]."<br></p> -> ".$o["answer"]."\n";
-            }
-        }
-        echo "}\n\n";
-    }
 }
 
 function isOption($str)
@@ -168,6 +148,47 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // var_dump($questions);
     if (count($errors) == 0) {
         renderGift($questions, $filename);
+    }
+}
+
+function convertToSafeName($str)
+{
+    if (!empty($str)) {
+        $len = strlen($str) < MAX_LENGTH ? MAX_LENGTH : strlen($str);
+        $str = trim(substr(strip_tags($str), 0, $len));
+    }
+    return $str;
+}
+
+function convertToSafeHTML($str)
+{
+    if (!empty($str)) {
+        $str = strip_tags($str, ALLOWED_TAGS);
+    }
+    return $str;
+}
+
+function renderGift($questions, $filename)
+{
+    header('Content-type: text/plain');
+    header('Content-Disposition: attachment; filename="'.$filename.'"');
+
+    foreach ($questions as $q) {
+        echo "::".$q["name"]."::";
+        echo "[html]<p>".$q["question"]."<br></p>";
+        echo "{\n";
+        if ($q["type"] == "multiple-choice") {
+            foreach ($q["options"] as $o) {
+                echo "\t";
+                echo ($o["answer"]) ? "=" : "~";
+                echo "<p>".$o["text"]."</p>\n";
+            }
+        } elseif ($q["type"] == "matching") {
+            foreach ($q["subquestions"] as $o) {
+                echo "\t=<p>".$o["text"]."<br></p> -> ".$o["answer"]."\n";
+            }
+        }
+        echo "}\n\n";
     }
 }
 
