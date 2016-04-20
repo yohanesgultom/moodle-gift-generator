@@ -1,10 +1,10 @@
-1.Who is Indonesia's 1st president?
+1.Who is <em>Indonesia's</em> 1st <strong>president</strong>?
 *a.Ir. Sukarno
 b.Moh. Hatta
 c.Sukarno Hatta
 d.Suharto
 
-Matching.Match each definition about space below
+Matching.Match each definition about <strong>space</strong> below
 1.Saturn’s largest moon * Mercury
 2.The 2nd biggest planet in our solar system * Saturn
 3.The hottest planet in our solar system * Venus
