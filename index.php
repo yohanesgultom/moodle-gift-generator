@@ -42,11 +42,13 @@ function parseMatching($lines)
     $subquestions = array();
     foreach ($lines as $j => $line) {
         if ($j == 0) {
-            $question["question"] = getQuestionOrOptionValue($line);
+            $str = getQuestionOrOptionValue($line);
+            $question["name"] = convertToSafeName($str);
+            $question["question"] = convertToSafeHTML($str);
             $question["type"] = "matching";
         } else {
             $tmp = explode(ANSWER_MARK, $line);
-            $subquestions[$j-1]["text"] = getQuestionOrOptionValue($tmp[0]);
+            $subquestions[$j-1]["text"] = convertToSafeHTML(getQuestionOrOptionValue($tmp[0]));
             $subquestions[$j-1]["answer"] = $tmp[1];
         }
     }
@@ -87,7 +89,7 @@ function getQuestionOrOptionValue($str)
     return trim(str_replace(":", "", $str));
 }
 
-function validateQuestion($question)
+function validateQuestionMultipleChoice($question)
 {
     $errors = array();
     $question_text = trim($question["question"]);
@@ -114,11 +116,39 @@ function validateQuestion($question)
     return $errors;
 }
 
+function validateQuestionMatching($question)
+{
+    $errors = array();
+    $question_text = trim($question["question"]);
+    if (empty($question_text)) {
+        array_push($errors, "Empty question");
+    }
+    if (count($question["subquestions"]) <= 0) {
+        array_push($errors, "No subquestions provided");
+    } else {
+        foreach ($question["subquestions"] as $index => $option) {
+            $option_text = trim($option["text"]);
+            $option_answer = trim($option["answer"]);
+            if (empty($option_text)) {
+                array_push($errors, ($index + 1)." : empty subquestion text");
+            }
+            if (empty($option_answer)) {
+                array_push($errors, ($index + 1)." : empty subquestion answer");
+            }
+        }
+    }
+    return $errors;
+}
+
 function validateQuestions($questions)
 {
     $errors = array();
     foreach ($questions as $index => $question) {
-        $errors_temp = validateQuestion($question);
+        if ($question["type"] == "multiple-choice") {
+            $errors_temp = validateQuestionMultipleChoice($question);
+        } else if ($question["type"] == "matching") {
+            $errors_temp = validateQuestionMatching($question);
+        }
         if (count($errors_temp) > 0) {
             $errors[$index] = $errors_temp;
         }
@@ -208,6 +238,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST" || count($errors) > 0) {
 
     h1.ui.center.header {
         margin-top: 2em;
+        margin-bottom: 1em;
     }
 
     textarea#source {
@@ -222,6 +253,10 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST" || count($errors) > 0) {
 
     .ui.container.form {
         margin-top: 1em;
+    }
+
+    .ui.message {
+        margin-bottom: 0.5em !important;
     }
 
     .message .header {
