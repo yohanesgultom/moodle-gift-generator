@@ -207,7 +207,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST" || count($errors) > 0) {
     <style type="text/css">
 
     h1.ui.center.header {
-        margin-top: 3em;
+        margin-top: 2em;
     }
 
     textarea#source {
@@ -231,6 +231,18 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST" || count($errors) > 0) {
 </head>
 <body>
     <h1 class="ui center aligned header">Moodle GIFT Generator</h1>
+
+    <div class="ui container">
+        <div class="ui icon message">
+          <i class="github alternate icon"></i>
+          <div class="content">
+            <div class="header">
+              Need more help, information or even source code?
+            </div>
+            <p>Get them on <a href="https://github.com/yohanesgultom/moodle-gift-generator">https://github.com/yohanesgultom/moodle-gift-generator</a></p>
+          </div>
+        </div>
+    </div>
 
     <?php if (count($errors) > 0) { ?>
     <div class="ui container">
