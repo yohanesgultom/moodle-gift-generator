@@ -272,7 +272,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST" || count($errors) > 0) {
           <i class="github alternate icon"></i>
           <div class="content">
             <div class="header">
-              Need more help, information or even source code?
+              <p>Need more help, information or even source code?</p>
             </div>
             <p>Get them on <a href="https://github.com/yohanesgultom/moodle-gift-generator">https://github.com/yohanesgultom/moodle-gift-generator</a></p>
           </div>
