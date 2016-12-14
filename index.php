@@ -159,6 +159,8 @@ function validateQuestions($questions)
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $filename = !empty($_POST["filename"]) ? trim($_POST["filename"]) : $filename;
     $source = $_POST["source"];
+    // remove whitespaces from empty lines
+    $source = preg_replace("/\n[ \t]+/m", "\n", $source);
     $questionsRaw = explode("\n\r\n", trim($source));
     // var_dump($questionsRaw);
 
@@ -262,6 +264,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST" || count($errors) > 0) {
     .message .header {
         margin-bottom: 1em;
     }
+
     </style>
 </head>
 <body>
