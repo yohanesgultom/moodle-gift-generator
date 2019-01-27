@@ -1,6 +1,6 @@
 ## Moodle GIFT generator
 
-Moodle (https://moodle.org/) question format (GIFT) generator. Currently only `multiple-choice` and `matching` type supported. Live demo: http://moodlegift.liveapp.ga
+Moodle (https://moodle.org/) question format (GIFT) generator. Currently only `multiple-choice` and `matching` type supported. Live demo: http://moodlegift.gultom.me
 
 ### Running
 
