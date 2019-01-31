@@ -1,0 +1,28 @@
+{
+  "name": "moodle-gift-generator",
+  "version": "1.0.0",
+  "description": "Generate Moodle GIFT file from simple plain text questions",
+  "main": "src/gift.js",
+  "scripts": {
+    "start": "http-server src -o",
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yohanesgultom/moodle-gift-generator.git"
+  },
+  "keywords": [
+    "moodle",
+    "gift"
+  ],
+  "author": "yohanes.gultom@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yohanesgultom/moodle-gift-generator/issues"
+  },
+  "homepage": "https://github.com/yohanesgultom/moodle-gift-generator#readme",
+  "devDependencies": {
+    "http-server": "^0.11.1",
+    "mocha": "^5.2.0"
+  }
+}

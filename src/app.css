@@ -1,0 +1,21 @@
+h1.ui.center.header {
+    margin-top: 2em;
+    margin-bottom: 1em;
+}
+
+textarea#source {
+    width:100%;
+    height: 20em;
+}
+        
+.ui.container.form {
+    margin-top: 1em;
+}
+
+.ui.message {
+    margin-bottom: 0.5em !important;
+}
+
+.message .header {
+    margin-bottom: 1em;
+}

@@ -1,24 +1,27 @@
-## Moodle GIFT generator
+# Moodle GIFT generator
 
-Moodle (https://moodle.org/) question format (GIFT) generator. Currently only `multiple-choice` and `matching` type supported. Live demo: http://moodlegift.gultom.me
+Moodle (https://moodle.org/) question format (GIFT) generator. Currently only `multiple-choice` and `matching` type supported. Live demo: http://moodlegift.gultom.me. Fully-rewritten in plain javascript (previously was in php).
 
-### Running
+!["Screenshot"](screenshot.png)
 
-Simply put `index.php` to PHP webserver and access from browser
+### Usage
 
-![alt text](https://github.com/yohanesgultom/moodle-gift-generator/blob/master/screenshot.png "Screenshot")
+Steps to generate GIFT file from plain text questions in the web app:
 
-### Input Example
+1. Paste/write questions in format following examples below
+1. Click generate button. If there is no warning, file will automatically downloaded by your browser
+1. If there is warning, fix your questions and click generate button again. Repeat until successful
 
-File: https://github.com/yohanesgultom/moodle-gift-generator/blob/master/example.txt
+Example of questions:
+
 ```
-1.Who is Indonesia's 1st president?
+1.Who is <em>Indonesia's</em> 1st <strong>president</strong>?
 *a.Ir. Sukarno
 b.Moh. Hatta
 c.Sukarno Hatta
 d.Suharto
 
-Matching.Match each definition about space below
+Matching.Match each definition about <strong>space</strong> below
 1.Saturn’s largest moon * Mercury
 2.The 2nd biggest planet in our solar system * Saturn
 3.The hottest planet in our solar system * Venus
@@ -26,35 +29,27 @@ Matching.Match each definition about space below
 5.Planet known as the red planet * Mars
 6.Saturn’s largest moon * Titan
 ```
+### Installation
 
-### Output (GIFT) Example
+Production:
 
-File: https://github.com/yohanesgultom/moodle-gift-generator/blob/master/example.gift
-```
-// multiple choices example
-::Who is Indonesia's 1st president?::[html]<p>Who is Indonesia's 1st president?<br></p>{
-	=<p>Ir. Sukarno</p>
-	~<p>Moh. Hatta</p>
-	~<p>Sukarno Hatta</p>
-	~<p>Suharto</p>
-}
+1. Clone/download this repo
+1. Copy/upload all files in `src/` to your web server
 
-// matching example
-::Space matching for elementary school::[html]<p>Match each questions to one answer from the list<br></p>{
-	=<p>What is the name of Saturn’s largest moon?<br></p> -> Mercury
-	=<p>What is the name of the 2nd biggest planet in our solar system?<br></p> -> Saturn
-	=<p>What is the hottest planet in our solar system?<br></p> -> Venus
-	=<p>What planet is famous for its big red spot on it?<br></p> -> Jupiter
-	=<p>What planet is known as the red planet?<br></p> -> Mars
-	=<p>What is the name of Saturn’s largest moon?<br></p> -> Titan
-}
-```
+Development:
+
+1. Install Node.js >= 8.11.1
+1. Clone/download this repo
+1. Enter local repo directory and install development dependencies `npm install`
+1. Run test to make sure everything is fine `npm test`
+1. Run using built-in web server `npm start`
+
 
 ### License
 
 The MIT License (MIT)
 
-Copyright (c) 2016 Yohanes Gultom
+Copyright (c) 2019 Yohanes Gultom
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

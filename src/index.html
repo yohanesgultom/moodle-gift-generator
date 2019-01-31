@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Moodle GIFT Generator</title>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/semantic.min.css">
+    <link rel="stylesheet" type="text/css" href="app.css">        
+</head>
+<body>
+    <h1 class="ui center aligned header">Moodle GIFT Generator</h1>    
+    <div id="app" class="ui container form">
+        <div class="field source">    
+            <label>Questions:</label>
+            <textarea id="source" name="source" placeholder="Write/paste questions here" v-model="questions" required></textarea>
+        </div>
+        <div class="field" v-if="showMessage">
+            <div class="ui visible message" v-bind:class="{ negative:isError, warning:isWarning, info:isInfo }">
+                <div class="header">{{ messageHeader }}</div>
+                <div v-html="messageBody"></div>
+            </div>                  
+        </div>        
+        <div class="field">
+            <button class="blue ui button" v-on:click="generateGift" v-bind:disabled="disableGenerate">
+                <i class="icon download"></i> 
+                {{ generateLabel }}
+            </button>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="ui container">
+        <div class="ui icon message">
+            <i class="github alternate icon"></i>
+            <div class="content">
+                <div class="header">
+                    <p>Need more help, information or even source code?</p>
+                </div>
+                <p>Get them on <a href="https://github.com/yohanesgultom/moodle-gift-generator">https://github.com/yohanesgultom/moodle-gift-generator</a></p>
+            </div>
+        </div>
+    </div>    
+    
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>    
+    <script src="gift.js"></script>
+    <script>
+
+const QUESTION_EXAMPLES = `1.Who is <em>Indonesia's</em> 1st <strong>president</strong>?
+*a.Ir. Sukarno
+b.Moh. Hatta
+c.Sukarno Hatta
+d.Suharto
+
+Matching.Match each definition about <strong>space</strong> below
+1.Saturn’s largest moon * Mercury
+2.The 2nd biggest planet in our solar system * Saturn
+3.The hottest planet in our solar system * Venus
+4.Planet famous for its big red spot on it * Jupiter
+5.Planet known as the red planet * Mars
+6.Saturn’s largest moon * Titan`
+
+const GENERATE_LABEL = 'Generate GIFT'
+const PROCESSING_LABEL = 'Processing..'
+
+const app = new Vue({
+  el: '#app',
+  data: {
+    questions: QUESTION_EXAMPLES,
+    isError: false,
+    isWarning: false,
+    isInfo: false,
+    messageHeader: null,
+    messageBody: null,
+    generateLabel: GENERATE_LABEL,
+  },
+  computed: {
+    disableGenerate: function () {
+        let emptyQuestions = !this.questions || this.questions.length <= 0        
+        return emptyQuestions
+    },
+    showMessage: function () {
+        return this.showMessage = this.messageBody && this.messageBody.length > 0
+    },
+  },
+  watch: {
+    questions: function (val) {
+        this.messageHeader = this.messageBody = null
+    },
+  },
+  methods: {        
+    generateGift: function (event) {
+        this.disableGenerate = true
+        this.generateLabel = PROCESSING_LABEL
+
+        let stats = {
+            total: 0,
+            multiple: 0,
+            matching: 0,
+        }
+
+        try {
+            let questionList = Gift.parseQuestions(this.questions)        
+            let stats = Gift.validateQuestions(questionList)
+
+            if (Object.keys(stats.warnings).length <= 0) {
+                let gift = Gift.getGift(questionList)
+                let data = btoa(unescape(encodeURIComponent(gift)))
+                
+                // show info
+                this.isWarning = this.isError = false
+                this.isInfo = true
+                this.messageHeader = 'Result statistics'
+                this.messageBody = `<ul>
+    <li># Questions: ${stats.total}</li>
+    <li># Multiple-choice: ${stats.multiple}</li>
+    <li># Matching: ${stats.matching}</li>
+</ul>
+`;
+                window.open('data:application/octet-stream;charset=utf-8;base64,' + data)
+            } else {
+                // show warning
+                this.isInfo = this.isError = false
+                this.isWarning = true
+                this.messageHeader = 'Warning(s)'
+                let warnings = ''
+                for (let i in stats.warnings) {
+                    let warningsStr = stats.warnings[i].reduce((str, w) => `${str}<li>${w}</li>`, '')
+                    let id = parseInt(i)+1
+                    warnings += `<li>Question ${id}: <ul>${warningsStr}</ul></li>`
+                }
+                this.messageBody = `<ul>${warnings}</ul>`
+            }
+        } catch (err) {
+            this.isWarning = this.isInfo = false
+            this.isErrpr = true
+            this.messageHeader = 'Error'
+            this.messageBody = err.message
+            console.error(err)
+        } finally {
+            this.disableGenerate = true
+            this.generateLabel = GENERATE_LABEL
+        }
+    }
+  }
+})
+    </script>
+</body>
+</html>
