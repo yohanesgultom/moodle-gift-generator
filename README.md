@@ -31,14 +31,14 @@ Matching.Match each definition about <strong>space</strong> below
 5.Planet known as the red planet * Mars
 6.Saturn’s largest moon * Titan
 ```
-### Installation
-
-Production:
+### Production
 
 1. Clone/download this repo
 1. Copy/upload all files in `src/` to your web server
 
-Development with Docker:
+### Development 
+
+With Docker:
 
 1. Use latest node image (adjust the port `-p` if needed) `docker run -d -t -v $(pwd):/home/app -w /home/app -p 8080:8080 --name node-dev node:16-buster`
 1. Connect to the container `docker exec -it node-dev bash`
@@ -48,12 +48,11 @@ Development with Docker:
 
 Without Docker:
 
-1. Install Node.js >= 8.11.1
+1. Install Node.js >= 16.x 
 1. Clone/download this repo
 1. Enter local repo directory and install development dependencies `npm install`
 1. Run test to make sure everything is fine `npm test`
 1. Run using built-in web server `npm start`
-
 
 ### License
 
