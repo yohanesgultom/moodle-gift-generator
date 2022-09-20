@@ -1,6 +1,6 @@
 # Moodle GIFT generator
 
-[Moodle](https://moodle.org/) question format (GIFT) generator. Currently only `multiple-choice` and `matching` type supported. Fully-rewritten in plain javascript (previously was in php).
+[Moodle](https://moodle.org/) question format (GIFT) generator. Currently only `multiple-choice` and `matching` type supported. Fully-rewritten in plain javascript (the PHP version is left in `_old` directory for reference).
 
 **Live demo: http://moodlegift.gultom.id**
 
@@ -38,7 +38,15 @@ Production:
 1. Clone/download this repo
 1. Copy/upload all files in `src/` to your web server
 
-Development:
+Development with Docker:
+
+1. Use latest node image (adjust the port `-p` if needed) `docker run -d -t -v $(pwd):/home/app -w /home/app -p 8080:8080 --name node-dev node:16-buster`
+1. Connect to the container `docker exec -it node-dev bash`
+1. Run test `npm test`
+1. Run server `npm start`
+1. Press `Ctrl+D` or `Cmd+D` to exit then run `docker stop node-dev && docker rm node-dev` to clean up the container
+
+Without Docker:
 
 1. Install Node.js >= 8.11.1
 1. Clone/download this repo
