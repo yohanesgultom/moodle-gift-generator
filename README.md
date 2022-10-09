@@ -2,7 +2,7 @@
 
 [Moodle](https://moodle.org/) question format (GIFT) generator. Currently only `multiple-choice` and `matching` type supported. Fully-rewritten in plain javascript (the PHP version is left in `_old` directory for reference).
 
-**Live demo: http://moodlegift.gultom.id**
+**Live demo: https://yohanesgultom.github.io/moodle-gift-generator/**
 
 !["Screenshot"](screenshot.png)
 
