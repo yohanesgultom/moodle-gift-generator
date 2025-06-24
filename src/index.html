@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Moodle GIFT Generator</title>
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/semantic.min.css">
-    <link rel="stylesheet" type="text/css" href="app.css">        
+    <link rel="stylesheet" type="text/css" href="app.css?v=1.0.0">        
 </head>
 <body>
     <h1 class="ui center aligned header">Moodle GIFT Generator</h1>    
@@ -21,11 +21,13 @@
                 <div v-html="messageBody"></div>
             </div>                  
         </div>        
-        <div class="field">
+        <div class="field inline-controls">
             <button class="blue ui button" v-on:click="generateGift" v-bind:disabled="disableGenerate">
                 <i class="icon download"></i> 
                 {{ generateLabel }}
             </button>
+            <input type="checkbox" v-model="isWarningsIgnored" id="ignore-warnings" />
+            <label for="ignore-warnings" style="margin-bottom:0;">{{ ignoreWarningLabel }}</label>
         </div>
     </div>
 
@@ -42,7 +44,7 @@
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/vue@2.7.10"></script>
-    <script src="gift.js"></script>
+    <script src="gift.js?v=1.0.0"></script>
     <script>
 
 const QUESTION_EXAMPLES = `1.What is Indonesian state philosophy called?
@@ -71,6 +73,7 @@ Matching.Match each definition about <strong>space</strong> below
 6.Saturn’s largest moon * Titan`
 
 const GENERATE_LABEL = 'Generate GIFT'
+const IGNORE_WARNING_LABEL = 'Ignore warning(s)'
 const PROCESSING_LABEL = 'Processing..'
 
 const app = new Vue({
@@ -80,9 +83,11 @@ const app = new Vue({
     isError: false,
     isWarning: false,
     isInfo: false,
+    isWarningsIgnored: false,
     messageHeader: null,
     messageBody: null,
     generateLabel: GENERATE_LABEL,
+    ignoreWarningLabel: IGNORE_WARNING_LABEL,
   },
   computed: {
     disableGenerate: function () {
@@ -112,8 +117,23 @@ const app = new Vue({
         try {
             let questionList = Gift.parseQuestions(this.questions)        
             let stats = Gift.validateQuestions(questionList)
+            
+            // show warning
+            if (Object.keys(stats.warnings).length > 0) {
+                this.isInfo = this.isError = false
+                this.isWarning = true
+                this.messageHeader = 'Warning(s)'
+                let warnings = ''
+                for (let i in stats.warnings) {
+                    let warningsStr = stats.warnings[i].reduce((str, w) => `${str}<li>${w}</li>`, '')
+                    let id = parseInt(i)+1
+                    warnings += `<li>Question ${id}: <ul>${warningsStr}</ul></li>`
+                }
+                this.messageBody = `<ul>${warnings}</ul>`
+            }
 
-            if (Object.keys(stats.warnings).length <= 0) {
+            // generate
+            if (Object.keys(stats.warnings).length <= 0 || this.isWarningsIgnored) {
                 let gift = Gift.getGift(questionList)
                 let data = btoa(unescape(encodeURIComponent(gift)))
                 
@@ -128,18 +148,6 @@ const app = new Vue({
 </ul>
 `;
                 window.open('data:application/octet-stream;charset=utf-8;base64,' + data)
-            } else {
-                // show warning
-                this.isInfo = this.isError = false
-                this.isWarning = true
-                this.messageHeader = 'Warning(s)'
-                let warnings = ''
-                for (let i in stats.warnings) {
-                    let warningsStr = stats.warnings[i].reduce((str, w) => `${str}<li>${w}</li>`, '')
-                    let id = parseInt(i)+1
-                    warnings += `<li>Question ${id}: <ul>${warningsStr}</ul></li>`
-                }
-                this.messageBody = `<ul>${warnings}</ul>`
             }
         } catch (err) {
             this.isWarning = this.isInfo = false

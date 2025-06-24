@@ -19,3 +19,9 @@ textarea#source {
 .message .header {
     margin-bottom: 1em;
 }
+
+.inline-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}

@@ -44,8 +44,8 @@ const Gift = {
             if (!q.question || q.question.length < 5) {
                 w.push('Question is empty or too short')
             } else {
-                // simple hash by removing non-alphanumerics
-                let hash = q.question.replace(/[^a-zA-Z\d]/g, '')
+                // simple hash by removing evrything except unicode letters (includin non-latin letters)
+                let hash = q.question.replace(/[^\p{L}]/gu, '')
                 if (hash in questionMap) {
                     w.push(`Duplicate of question ${questionMap[hash]+1}`)
                 } else {
